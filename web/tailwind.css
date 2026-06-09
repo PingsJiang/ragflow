@@ -327,4 +327,25 @@
   .dark .scrollbar-auto:active::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.3);
   }
+
+  /*
+   * Share-chat page (pages/next-chats/share) bubble re-paint.
+   *
+   * MessageItem uses less-module hashed class names, so we target them with
+   * attribute-substring selectors scoped under `.chat-share-root`. If the
+   * MessageItem class names change in the future these overrides will silently
+   * stop matching — update the selectors in lockstep.
+   */
+  .chat-share-root [class*='messageItem'] {
+    padding: 10px 0;
+  }
+  .chat-share-root [class*='messageItemContent'] {
+    gap: 12px;
+  }
+  .chat-share-root [class*='messageUserText'] {
+    background-color: transparent;
+    border: 1px solid var(--border-default);
+    border-radius: 16px 16px 4px 16px;
+    padding: 8px 14px;
+  }
 }

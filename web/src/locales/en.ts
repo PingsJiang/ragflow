@@ -956,6 +956,16 @@ This auto-tagging feature enhances retrieval by adding another layer of domain-s
       replyInstantly: 'We typically reply instantly',
       typeYourMessage: 'Type your message...',
       messagePlaceholder: 'Type your message here...',
+      share: {
+        subtitle: 'AI assistant, ready to chat',
+        heroSubtitle:
+          'Ask anything — answers are powered by the configured knowledge.',
+        reset: 'Reset',
+        retry: 'Retry',
+        errorTitle: 'Connection failed',
+        errorDescription:
+          'Could not reach the assistant. Please retry to start a new session.',
+      },
       exit: 'Exit',
       multipleModels: 'Multiple models',
       applyModelConfigs: 'Apply model configs',
