@@ -275,10 +275,15 @@ export const useSendMessageWithSse = () => {
                 if (typeof d !== 'boolean') {
                   setAnswer((prev) => {
                     const prevAnswer = prev.answer || '';
-                    const currentAnswer = d.final ? '' : d.answer || '';
+                    const currentAnswer = d.answer || '';
 
                     let newAnswer: string;
-                    if (prevAnswer && currentAnswer.startsWith(prevAnswer)) {
+                    if (d.final) {
+                      newAnswer = currentAnswer;
+                    } else if (
+                      prevAnswer &&
+                      currentAnswer.startsWith(prevAnswer)
+                    ) {
                       newAnswer = currentAnswer;
                     } else {
                       newAnswer = prevAnswer + currentAnswer;

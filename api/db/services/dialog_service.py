@@ -763,7 +763,7 @@ async def async_chat(dialog, messages, stream=True, **kwargs):
     retrieval_ts = timer()
     if not knowledges and prompt_config.get("empty_response"):
         empty_res = prompt_config["empty_response"]
-        yield {"answer": empty_res, "reference": kbinfos, "prompt": "\n\n### Query:\n%s" % " ".join(questions), "audio_binary": tts(tts_mdl, empty_res), "final": True}
+        yield {"answer": empty_res, "reference": {}, "prompt": "\n\n### Query:\n%s" % " ".join(questions), "audio_binary": tts(tts_mdl, empty_res), "final": True}
         return
 
     kwargs["knowledge"] = "\n------\n" + "\n\n------\n\n".join(knowledges)
@@ -793,7 +793,12 @@ async def async_chat(dialog, messages, stream=True, **kwargs):
             think = ans[0] + "</think>"
             answer = ans[1]
 
-        if knowledges and (prompt_config.get("quote", True) and kwargs.get("quote", True)):
+        is_empty_refusal = (
+                bool(prompt_config.get("empty_response"))
+                and answer.strip() == prompt_config["empty_response"].strip()
+        )
+
+        if not is_empty_refusal and knowledges and (prompt_config.get("quote", True) and kwargs.get("quote", True)):
             idx = set([])
             normalized_answer = normalize_arabic_digits(answer) or ""
             if embd_mdl and not CITATION_MARKER_PATTERN.search(normalized_answer):

@@ -1834,7 +1834,6 @@ async def batch_update_document_status(tenant_id, dataset_id):
     return get_json_result(data=result)
 
 @manager.route("/documents/<doc_id>/preview", methods=["GET"])  # noqa: F821
-@login_required
 async def get(doc_id):
     """Return the raw file bytes for a document the requesting user is authorized to read.
 
