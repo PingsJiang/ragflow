@@ -1,5 +1,6 @@
 import Image from '@/components/image';
 import SvgIcon from '@/components/svg-icon';
+import { MarkdownRemarkPlugins } from '@/constants/markdown-remark-plugins';
 import { IReference, IReferenceChunk } from '@/interfaces/database/chat';
 import { citationMarkerReg } from '@/utils/citation-utils';
 import { getExtension } from '@/utils/document-util';
@@ -10,7 +11,6 @@ import Markdown from 'react-markdown';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
-import { MarkdownRemarkPlugins } from '@/constants/markdown-remark-plugins';
 import { visitParents } from 'unist-util-visit-parents';
 
 import { useTranslation } from 'react-i18next';
@@ -36,6 +36,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '../ui/hover-card';
+// Portal the HoverCard content to <body> so it always renders above message
+// bubbles. Without this, parent bubbles that establish a new stacking context
+// (e.g. `isolation: isolate` on .chat-share-root [class*='messageText'] for the
+// double-layer frame effect) clip the popover and later messages paint over it.
+import { Portal as HoverCardPortal } from '@radix-ui/react-hover-card';
 import styles from './index.module.less';
 
 const getChunkIndex = (match: string) => parseCitationIndex(match);
@@ -72,7 +77,11 @@ const MarkdownContent = ({
       text = t('chat.searching');
     }
     const nextText = replaceTextByOldReg(text);
-    return pipe(replaceThinkToSection, replaceRetrievingToSection, preprocessLaTeX)(nextText);
+    return pipe(
+      replaceThinkToSection,
+      replaceRetrievingToSection,
+      preprocessLaTeX,
+    )(nextText);
   }, [content, t]);
 
   useEffect(() => {
@@ -165,12 +174,14 @@ const MarkdownContent = ({
                   className={styles.referenceChunkImage}
                 ></Image>
               </HoverCardTrigger>
-              <HoverCardContent>
-                <Image
-                  id={imageId}
-                  className={styles.referenceImagePreview}
-                ></Image>
-              </HoverCardContent>
+              <HoverCardPortal>
+                <HoverCardContent>
+                  <Image
+                    id={imageId}
+                    className={styles.referenceImagePreview}
+                  ></Image>
+                </HoverCardContent>
+              </HoverCardPortal>
             </HoverCard>
           )}
           <div className={'space-y-2 max-w-[40vw]'}>
@@ -243,9 +254,11 @@ const MarkdownContent = ({
                 Fig. {chunkIndex + 1}
               </bdi>
             </HoverCardTrigger>
-            <HoverCardContent className="max-w-3xl">
-              {getPopoverContent(chunkIndex)}
-            </HoverCardContent>
+            <HoverCardPortal>
+              <HoverCardContent className="max-w-3xl">
+                {getPopoverContent(chunkIndex)}
+              </HoverCardContent>
+            </HoverCardPortal>
           </HoverCard>
         );
       });

@@ -338,14 +338,306 @@
    */
   .chat-share-root [class*='messageItem'] {
     padding: 10px 0;
+    animation: chat-share-bubble-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
   .chat-share-root [class*='messageItemContent'] {
     gap: 12px;
   }
+
+  /* User bubble: subtle teal-tinted gradient, soft inner highlight,
+     accent-colored hairline border, mild hover lift. */
   .chat-share-root [class*='messageUserText'] {
-    background-color: transparent;
-    border: 1px solid var(--border-default);
-    border-radius: 16px 16px 4px 16px;
-    padding: 8px 14px;
+    position: relative;
+    background: linear-gradient(
+      135deg,
+      rgba(0, 190, 180, 0.1),
+      rgba(0, 190, 180, 0.02)
+    );
+    border: 1px solid rgba(0, 190, 180, 0.28);
+    border-radius: 24px;
+    padding: 10px 16px;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+  .chat-share-root [class*='messageUserText']:hover {
+    border-color: rgba(0, 190, 180, 0.45);
+    box-shadow:
+      0 4px 14px -2px rgba(0, 190, 180, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+  }
+  .dark .chat-share-root [class*='messageUserText'] {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 190, 180, 0.18),
+      rgba(0, 190, 180, 0.04)
+    );
+    border-color: rgba(0, 190, 180, 0.35);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  /* Assistant message body: neutral glass bubble that mirrors the user bubble
+     (corner tail on bottom-left instead of bottom-right), kept lower-contrast
+     so the actual content remains the visual focus. Targets both
+     messageText (light) and messageTextDark (dark) since both contain the
+     literal substring 'messageText'. */
+  .chat-share-root [class*='messageText']:not([class*='messageUserText']) {
+    position: relative;
+    isolation: isolate;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.7),
+      rgba(255, 255, 255, 0.35)
+    );
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 24px;
+    padding: 12px 16px;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+  /* Outer stacked-card frame for the AI bubble — mirror of user bubble's
+     outer layer, tinted neutral instead of teal to preserve the
+     "content-first" reading. */
+  .chat-share-root
+    [class*='messageText']:not([class*='messageUserText'])::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 28px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.45),
+      rgba(255, 255, 255, 0.15)
+    );
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    z-index: -1;
+    pointer-events: none;
+    transition:
+      inset 0.25s ease,
+      border-color 0.25s ease;
+  }
+  .chat-share-root
+    [class*='messageText']:not([class*='messageUserText']):hover {
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 4px 14px -2px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    transform: translateY(-1px);
+  }
+  .chat-share-root
+    [class*='messageText']:not([class*='messageUserText']):hover::before {
+    inset: -7px;
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+  .dark
+    .chat-share-root
+    [class*='messageText']:not([class*='messageUserText']) {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.02)
+    );
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  .dark
+    .chat-share-root
+    [class*='messageText']:not([class*='messageUserText'])::before {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.01)
+    );
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+  .dark
+    .chat-share-root
+    [class*='messageText']:not([class*='messageUserText']):hover {
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow:
+      0 4px 14px -2px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  /* Markdown niceties inside assistant messages: brand-tinted code +
+     accented blockquote so plain markdown reads as "polished" instead
+     of "plain text". */
+  .chat-share-root
+    [class*='messageText']:not([class*='messageUserText'])
+    code:not(pre code) {
+    background: rgba(0, 190, 180, 0.1);
+    color: rgb(0, 150, 142);
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-size: 0.9em;
+  }
+  .dark
+    .chat-share-root
+    [class*='messageText']:not([class*='messageUserText'])
+    code:not(pre code) {
+    background: rgba(0, 190, 180, 0.18);
+    color: rgb(64, 220, 210);
+  }
+  .chat-share-root
+    [class*='messageText']:not([class*='messageUserText'])
+    blockquote {
+    border-left: 3px solid rgba(0, 190, 180, 0.5);
+    padding-left: 12px;
+    margin: 8px 0;
+    color: var(--text-secondary);
+  }
+
+  @keyframes chat-share-bubble-in {
+    0% {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /*
+   * Share-chat page input re-skin.
+   *
+   * Targets NextMessageInput from outside the component (it is reused in
+   * many places, so we paint it only when nested under `.chat-share-input`).
+   * Uses stable data-testid attributes for the toolbar buttons and the
+   * <form> / <textarea> tags for the frame. If NextMessageInput restructures
+   * its DOM these overrides will silently stop matching — keep in lockstep.
+   */
+  .chat-share-input > form {
+    border: 0;
+    background: transparent;
+    border-radius: 22px;
+    padding: 10px 12px;
+    /* The outer wrapper already shows focus state (gradient halo + lift),
+       so suppress the form's built-in outline to avoid a double focus ring. */
+    outline: none !important;
+  }
+  .chat-share-input > form:has(textarea:focus) {
+    outline: none !important;
+  }
+  .chat-share-input textarea {
+    font-size: 15px;
+    line-height: 1.55;
+    padding: 2px 2px !important;
+  }
+  .chat-share-input textarea::placeholder {
+    color: var(--text-secondary, rgba(0, 0, 0, 0.35));
+    opacity: 0.7;
+  }
+
+  /* All toolbar icon buttons: larger hit area, soft rounded chip on hover. */
+  .chat-share-input button[data-testid='chat-detail-attach'],
+  .chat-share-input button[data-testid='chat-detail-internet-toggle'],
+  .chat-share-input button[data-testid='chat-detail-audio-toggle'] {
+    height: 32px;
+    width: 32px;
+    border-radius: 10px;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  /* Voice / mic button: hidden on the share page (per user request).
+     Also hide its immediate wrapper <div> so the flex gap collapses. */
+  .chat-share-input button[data-testid='chat-detail-audio-toggle'],
+  .chat-share-input div:has(> button[data-testid='chat-detail-audio-toggle']) {
+    display: none !important;
+  }
+  .chat-share-input button[data-testid='chat-detail-attach']:hover,
+  .chat-share-input button[data-testid='chat-detail-internet-toggle']:hover,
+  .chat-share-input button[data-testid='chat-detail-audio-toggle']:hover {
+    background-color: rgba(0, 190, 180, 0.12);
+    color: rgb(0, 190, 180);
+    transform: translateY(-1px);
+  }
+  .chat-share-input button[data-testid='chat-detail-attach'] svg,
+  .chat-share-input button[data-testid='chat-detail-internet-toggle'] svg,
+  .chat-share-input button[data-testid='chat-detail-audio-toggle'] svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* "Thinking" pill: keep label but upgrade the resting state. */
+  .chat-share-input button[data-testid='chat-detail-thinking-toggle'] {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(0, 190, 180, 0.1);
+    color: var(--text-primary, #161618);
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .chat-share-input button[data-testid='chat-detail-thinking-toggle']:hover {
+    background: rgba(0, 190, 180, 0.18);
+    transform: translateY(-1px);
+  }
+  /* Active / enabled state — the original component adds Tailwind class
+     `text-bg-base` only when `enableThinking` is true. Pin a solid teal fill
+     so the toggle actually reads as ON; without this our resting-state
+     override above masks the original `bg-text-primary text-bg-base` reverse
+     fill and the button looks unclickable. */
+  .chat-share-input
+    button[data-testid='chat-detail-thinking-toggle'][class*='text-bg-base'] {
+    background: rgb(0, 190, 180);
+    color: white;
+    box-shadow:
+      0 0 0 1px rgba(0, 190, 180, 0.4),
+      0 4px 12px -3px rgba(0, 190, 180, 0.45);
+  }
+  .chat-share-input
+    button[data-testid='chat-detail-thinking-toggle'][class*='text-bg-base']:hover {
+    background: rgb(0, 170, 162);
+  }
+  .chat-share-input button[data-testid='chat-detail-thinking-toggle'] svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Send + Stop button: solid brand color pill with glow. */
+  .chat-share-input button[data-testid='chat-detail-send'],
+  .chat-share-input button[data-testid='chat-stream-status'] {
+    height: 36px;
+    width: 36px;
+    border-radius: 12px;
+    background: rgb(0, 190, 180);
+    color: white;
+    box-shadow: 0 6px 16px -4px rgba(0, 190, 180, 0.5);
+    transition: all 0.2s ease;
+  }
+  .chat-share-input button[data-testid='chat-detail-send']:not(:disabled):hover,
+  .chat-share-input button[data-testid='chat-stream-status']:hover {
+    background: rgb(0, 170, 162);
+    transform: translateY(-1px) scale(1.04);
+    box-shadow: 0 10px 24px -6px rgba(0, 190, 180, 0.6);
+  }
+  .chat-share-input button[data-testid='chat-detail-send']:disabled {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    box-shadow: none;
+  }
+  .chat-share-input button[data-testid='chat-detail-send'] svg,
+  .chat-share-input button[data-testid='chat-stream-status'] svg {
+    width: 16px;
+    height: 16px;
   }
 }
