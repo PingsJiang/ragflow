@@ -649,7 +649,15 @@ async def async_chat(dialog, messages, stream=True, **kwargs):
             prompt_config["system"] = prompt_config["system"].replace("{%s}" % p["key"], " ")
 
     if len(questions) > 1 and prompt_config.get("refine_multiturn"):
-        questions = [await full_question(dialog.tenant_id, dialog.llm_id, messages)]
+        # Pin the refined question to the same language as the latest user query.
+        # Without this, the LLM may translate Chinese questions to English when
+        # multi-turn context is mixed, which breaks downstream retrieval (English
+        # query → English-only docs) and ends up citing irrelevant chunks even
+        # when the answer text itself looks plausible.
+        original_question = questions[-1]
+        chinese_chars = sum(1 for c in original_question if "一" <= c <= "鿿")
+        refine_language = "Chinese" if chinese_chars >= max(2, len(original_question) * 0.2) else None
+        questions = [await full_question(dialog.tenant_id, dialog.llm_id, messages, language=refine_language)]
     else:
         questions = questions[-1:]
 
