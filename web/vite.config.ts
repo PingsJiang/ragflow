@@ -38,7 +38,7 @@ function resolveMinify(value: string | undefined): MinifyValue {
 }
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   // Load env from .env file (also loads .env.local, .env.[mode], .env.[mode].local)
   const env = loadEnv(mode, process.cwd(), '');
 
@@ -143,7 +143,12 @@ export default defineConfig(({ mode }) => {
       __API_PROXY_SCHEME__: JSON.stringify(proxyScheme),
     },
     plugins: [
-      inspectorBabelPlugin(),
+      // Dev-only: inject data-inspector-* attrs + serve inspector middleware.
+      // Skipped in production builds to avoid babel-transforming every JSX file
+      // and shipping react-dev-inspector in the bundle.
+      ...(command === 'serve'
+        ? [inspectorBabelPlugin(), inspectorServer()]
+        : []),
       react(),
       viteStaticCopy({
         targets: [
@@ -164,7 +169,6 @@ export default defineConfig(({ mode }) => {
           },
         },
       }),
-      inspectorServer(),
     ],
     resolve: {
       alias: {
